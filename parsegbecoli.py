@@ -71,13 +71,14 @@ with gzip.open('GCF_000005845.2_ASM584v2_genomic.gbff.gz', 'rb') as infile:
 
                     if 'db_xref' in feature.qualifiers:
                         refs = str(feature.qualifiers['db_xref'])[1:-1].split(', ')
+                        if 'protein_id' in feature.qualifiers:
+                            references.append([k,'refseq', str(feature.qualifiers['protein_id'])[2:-2]])
                         for ref in refs:
                             db = ref[1:-1].split(':')[0]
                             dbid = ref[1:-1].split(':')[1]
                             references.append([k,db,dbid])
 
                     if 'function' in feature.qualifiers:
-                        print feature.qualifiers['function']
                         function = str(feature.qualifiers['function'])[2:-2]
                         functions.append([k,function])
                     k+=1
@@ -86,7 +87,8 @@ with gzip.open('GCF_000005845.2_ASM584v2_genomic.gbff.gz', 'rb') as infile:
                 reptype = 'chromosome'
             else:
                 reptype = 'plasmid'
-            repliconline = [i,i,record.name,cds,reptype,structure]
+            repliconline = [j,i,record.description,cds,len(record.seq),reptype,structure,record.name,record.annotations['date']]
+            print '\t'.join(map(str,repliconline))
             #writing to files
             for gene in genes:
                 outfile.write('\t'.join(map(str,gene)) + '\n')
